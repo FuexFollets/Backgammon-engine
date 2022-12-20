@@ -26,9 +26,9 @@ namespace board {
 
                 const uint8_t start {}, end {};
 
-                enum MoveType { NormalMove, BarMove };
+                enum MoveType { NormalMove = false, BarMove = true };
 
-                MoveType get_move_type(); // false = normal move, true = moving off the bar
+                MoveType get_move_type(); 
             };
 
             complete_move(const std::initializer_list<partial_move> moves) : complete_move_composition {moves} {}
@@ -42,6 +42,14 @@ namespace board {
         void make_partial_move(const complete_move::partial_move&);
     }; // End of struct board
 
+    using MoveType = board::complete_move::partial_move::MoveType;
+
     board::complete_move::partial_move::partial_move(uint8_t p) : start {p}, end {UINT8_MAX} {}
     board::complete_move::partial_move::partial_move(uint8_t p_start, uint8_t p_end) : start {p_start}, end {p_end} {}
+
+    MoveType board::complete_move::partial_move::get_move_type() {
+        return (end == UINT8_MAX) ? MoveType::BarMove : MoveType::NormalMove;
+    }
+
+
 } // End of namespace board
