@@ -9,5 +9,9 @@ namespace board {
 
     struct board {
         std::array<point, 24> position;
+        point bar;
+        point white_finish, black_finish;
+
+        bool turn; // 0 = white, 1 = black
     };
 }
