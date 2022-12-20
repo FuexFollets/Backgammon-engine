@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <iostream>
 #include <iterator>
 
@@ -40,5 +41,36 @@ namespace board {
             board::TurnType::White : board::TurnType::Black;
 
         return input_stream;
+    }
+
+    void board::fancy_print() {
+        std::cout
+            << "Turn: " << ((turn == TurnType::White) ? 
+                    "White" : "Black");
+        
+        static const std::function<void(int, int)> print_position_from { // Prints position within given range 
+            [this] (int start, int stop) {
+                if (stop > start) std::copy( // Not in reverse order
+                    position.cbegin() + start, // Not reverse iterators
+                    position.cend() + stop,
+                    std::ostream_iterator<int>(std::cout, " "));
+
+                else std::copy( // When in reverse order 
+                    position.crbegin() + start, // Reverse iterators
+                    position.crend() + stop,
+                    std::ostream_iterator<int>(std::cout, " "));
+            }
+        };
+
+        print_position_from(13, 19); // Top row
+        std::cout << "| | ";
+        print_position_from(19, 25);
+
+        std::cout << "\n------------|" << bar << "|------------\n";
+
+        print_position_from(12, 6); // Bottom row
+        std::cout << "| | ";
+        print_position_from(6, -1);
+        std::cout << '\n';
     }
 }
