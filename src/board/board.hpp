@@ -25,7 +25,9 @@ namespace board {
 
                 point start, end;
 
-                bool move_type(); // false = normal move, true = moving off the bar
+                enum MoveType { NormalMove, BarMove };
+
+                MoveType get_move_type(); // false = normal move, true = moving off the bar
             };
 
             complete_move(const std::initializer_list<partial_move> moves) : complete_move_composition {moves} {}
@@ -33,7 +35,11 @@ namespace board {
             std::vector<partial_move> complete_move_composition; // A full move consists of multiple sub-moves
         };
 
+        bool is_valid_move(const complete_move&);
+        bool is_valid_move(const complete_move::partial_move&);
         void make_complete_move(const complete_move&);
         void make_partial_move(const complete_move::partial_move&);
     };
+
+    
 }
