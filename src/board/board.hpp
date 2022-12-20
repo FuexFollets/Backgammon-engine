@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <array>
 #include <cstdint>
+#include <ostream>
 #include <vector>
 #include <functional>
 #include <exception>
@@ -46,17 +47,27 @@ namespace board {
                 enum MoveType { NormalMove = false, BarMove = true };
 
                 MoveType get_move_type() const; 
+                friend std::ostream& operator<<(std::ostream&, const partial_move&);
+                friend std::istream& operator>>(std::istream&, partial_move&);
+                void fancy_print();
             };
 
             complete_move(const std::initializer_list<partial_move> moves) : complete_move_composition {moves} {}
 
             const std::vector<partial_move> complete_move_composition; // A full move consists of multiple sub-moves
+            friend std::ostream& operator<<(std::ostream&, const complete_move&);
+            friend std::istream& operator>>(std::istream&, complete_move&);
+            void fancy_print();
         };
 
         bool is_valid_move(const complete_move&) const;
         bool is_valid_move(const complete_move::partial_move&) const;
         void make_complete_move(const complete_move&);
         void make_partial_move(const complete_move::partial_move&);
+
+        friend std::ostream& operator<<(std::ostream&, const board&);
+        friend std::istream& operator>>(std::istream&, board&);
+        void fancy_print();
     }; // End of struct board
 
 
