@@ -5,16 +5,29 @@
 #include <cstdint>
 #include <vector>
 #include <functional>
+#include <exception>
+#include <string>
+#include <cstring>
 
 namespace board {
     using point = signed char; // For each point, a positive number is the number of white pieces and a negative number is the number of black pieces
+
+    struct invalid_move : std::exception {
+        const char* what() {
+            const std::string exception_string;
+
+            return std::strcpy(
+                    new char[std::strlen(exception_string.c_str())],
+                    exception_string.c_str()
+                    );
+        }
+    };
 
     struct board {
         board() : position {default_position} {} // Default initializer
         board(const board& other_board) : position {other_board.position} {}
 
         static constexpr const std::array<point, 24> default_position {2, 0, 0, 0, 0, -5, 0, -3, 0, 0, 0, 5, -5, 0, 0, 0, 3, 0, 5, 0, 0, 0, 0, -2};
-
         enum TurnType { White = false, Black = true }; // Enum indicating turn
 
         std::array<point, 24> position;
@@ -79,5 +92,11 @@ namespace board {
                 move.complete_move_composition.end(),
                 [this] (const complete_move::partial_move& m) -> bool { return is_valid_move(m); }
             );
+    }
+
+    void board::make_partial_move(const complete_move::partial_move& move) {
+        if (move.get_move_type() == MoveType::BarMove) {
+
+        }
     }
 } // End of namespace board
