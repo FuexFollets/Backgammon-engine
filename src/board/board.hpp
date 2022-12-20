@@ -8,6 +8,7 @@ namespace board {
 
     struct board {
         board() : position {default_position} {} // Default initializer
+        board(const board& other_board) : position {other_board.position} {}
 
         static constexpr const std::array<point, 24> default_position {2, 0, 0, 0, 0, -5, 0, -3, 0, 0, 0, 5, -5, 0, 0, 0, 3, 0, 5, 0, 0, 0, 0, -2};
 
