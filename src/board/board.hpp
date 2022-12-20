@@ -83,7 +83,7 @@ namespace board {
         return (
                 has_one_or_less_of_opposite_turn(move.end) &&
                 (turn == TurnType::White) ? (position.at(move.start) > 0) : position.at(move.start) < 0
-                );
+            );
     }
 
     bool board::is_valid_move(const complete_move& move) const {
@@ -95,8 +95,23 @@ namespace board {
     }
 
     void board::make_partial_move(const complete_move::partial_move& move) {
+        point difference {((turn == TurnType::White) ? point {-1} : point {1})}; // Added to the `point` moved from and subtracted from the `point` moved to
         if (move.get_move_type() == MoveType::BarMove) {
 
+            bar += difference;
+            position.at(move.end) -= difference;
+
+            return;
         }
+        // Normal move case
+
+        position.at(move.start) += difference;
+        position.at(move.end) -= difference;
+    }
+
+    void board::make_complete_move(const complete_move& move) {
+        if (is_valid_move(move) == false) throw invalid_move {};
+
+        for (const auto& partial_move : move.complete_move_composition) make_partial_move(partial_move);
     }
 } // End of namespace board
