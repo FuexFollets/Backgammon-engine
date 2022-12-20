@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <vector>
@@ -36,7 +37,7 @@ namespace board {
 
             complete_move(const std::initializer_list<partial_move> moves) : complete_move_composition {moves} {}
 
-            std::vector<partial_move> complete_move_composition; // A full move consists of multiple sub-moves
+            const std::vector<partial_move> complete_move_composition; // A full move consists of multiple sub-moves
         };
 
         bool is_valid_move(const complete_move&) const;
@@ -55,7 +56,7 @@ namespace board {
         return (start == UINT8_MAX) ? MoveType::BarMove : MoveType::NormalMove;
     }
 
-    bool board::is_valid_move(const board::complete_move::partial_move& move) const {
+    bool board::is_valid_move(const complete_move::partial_move& move) const {
         static const std::function<bool(uint8_t)> has_one_or_less_of_opposite_turn { // Decides if the player at the current turn is able to move to the point in the parameter
             [this] (uint8_t point_number) -> bool {
                 return (turn == TurnType::White) ?
@@ -70,5 +71,13 @@ namespace board {
                 has_one_or_less_of_opposite_turn(move.end) &&
                 (turn == TurnType::White) ? (position.at(move.start) > 0) : position.at(move.start) < 0
                 );
+    }
+
+    bool board::is_valid_move(const complete_move& move) const {
+        return std::all_of(
+                move.complete_move_composition.begin(),
+                move.complete_move_composition.end(),
+                [this] (const complete_move::partial_move& m) -> bool { return is_valid_move(m); }
+            );
     }
 } // End of namespace board
