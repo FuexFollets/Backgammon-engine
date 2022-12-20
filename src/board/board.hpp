@@ -13,5 +13,17 @@ namespace board {
         point white_finish, black_finish;
 
         bool turn; // 0 = white, 1 = black
+
+        struct complete_move {
+            struct individual_move {
+                point start, end;
+
+                bool move_type(); // false = normal move, true == moving off the bar
+            };
+
+
+        };
+
+        void make_move(const complete_move&);
     };
 }
