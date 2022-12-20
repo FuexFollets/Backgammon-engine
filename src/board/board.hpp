@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <cstdint>
 #include <vector>
 
 namespace board {
@@ -20,10 +21,10 @@ namespace board {
         struct complete_move {
             struct partial_move {
                 partial_move() {}
-                partial_move(point p); // Bar move
-                partial_move(point p_start, point p_end); // Normal move
+                partial_move(uint8_t); // Bar move
+                partial_move(uint8_t, uint8_t); // Normal move
 
-                point start, end;
+                const uint8_t start {}, end {};
 
                 enum MoveType { NormalMove, BarMove };
 
@@ -39,7 +40,8 @@ namespace board {
         bool is_valid_move(const complete_move::partial_move&);
         void make_complete_move(const complete_move&);
         void make_partial_move(const complete_move::partial_move&);
-    };
+    }; // End of struct board
 
-    
-}
+    board::complete_move::partial_move::partial_move(uint8_t p) : start {p}, end {UINT8_MAX} {}
+    board::complete_move::partial_move::partial_move(uint8_t p_start, uint8_t p_end) : start {p_start}, end {p_end} {}
+} // End of namespace board
