@@ -42,11 +42,13 @@ namespace board {
                 partial_move(uint8_t); // Bar move
                 partial_move(uint8_t, uint8_t); // Normal move
 
+                partial_move(const partial_move&); // Copy constructor
+
                 const uint8_t start {}, end {}; // Start and ending positions for moves
 
                 enum MoveType { NormalMove = false, BarMove = true };
 
-                MoveType get_move_type() const; 
+                MoveType get_move_type() const;
                 friend std::ostream& operator<<(std::ostream&, const partial_move&);
                 friend std::istream& operator>>(std::istream&, partial_move&);
                 void fancy_print();
@@ -68,15 +70,18 @@ namespace board {
         friend std::ostream& operator<<(std::ostream&, const board&);
         friend std::istream& operator>>(std::istream&, board&);
         void fancy_print();
+        
+        using partial_move = complete_move::partial_move;
     }; // End of struct board
 
 
-    using MoveType = board::complete_move::partial_move::MoveType;
+    using MoveType = board::partial_move::MoveType;
 
-    board::complete_move::partial_move::partial_move(uint8_t p) : start {UINT8_MAX}, end {p} {} // Bar move initializer
-    board::complete_move::partial_move::partial_move(uint8_t p_start, uint8_t p_end) : start {p_start}, end {p_end} {} // Normal move initializer
+    board::partial_move::partial_move(uint8_t p) : start {UINT8_MAX}, end {p} {} // Bar move initializer
+    board::partial_move::partial_move(uint8_t p_start, uint8_t p_end) : start {p_start}, end {p_end} {} // Normal move initializer
+    board::partial_move::partial_move(const partial_move& move) : start {move.start}, end {move.end} {}
 
-    MoveType board::complete_move::partial_move::get_move_type() const { // Based off of `start` member variable
+    MoveType board::partial_move::get_move_type() const { // Based off of `start` member variable
         return (start == UINT8_MAX) ? MoveType::BarMove : MoveType::NormalMove;
     }
 
