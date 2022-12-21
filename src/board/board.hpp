@@ -13,12 +13,18 @@
 namespace board {
     using point = signed char; // For each point, a positive number is the number of white pieces and a negative number is the number of black pieces
 
+    constexpr int number_of_points {24};
+
     struct invalid_move : std::exception {
+        using std::exception::what;
+
         const char* what() {
             const std::string exception_string;
 
+            char* c_exception_string {new char[std::strlen(exception_string.c_str())]};
+
             return std::strcpy(
-                    new char[std::strlen(exception_string.c_str())],
+                    c_exception_string,
                     exception_string.c_str()
                     );
         }
@@ -29,26 +35,27 @@ namespace board {
         board(const board& other_board) : position {other_board.position} {}
 
         static constexpr const std::array<point, 24> default_position {2, 0, 0, 0, 0, -5, 0, -3, 0, 0, 0, 5, -5, 0, 0, 0, 3, 0, 5, 0, 0, 0, 0, -2};
-        enum TurnType { White = false, Black = true }; // Enum indicating turn
+        enum TurnType { White = 0, Black = 1}; // Enum indicating turn
 
-        std::array<point, 24> position;
-        point bar;
-        point white_finish, black_finish;
-        TurnType turn; // 0 = white, 1 = black
+        std::array<point, number_of_points> position;
+        point bar {};
+        point white_finish {}, black_finish {};
+        TurnType turn {TurnType::White}; // 0 = white, 1 = black
 
         struct complete_move {
             struct partial_move {
-                partial_move() {}
-                partial_move(uint8_t); // Bar move
-                partial_move(uint8_t, uint8_t); // Normal move
+                partial_move() = default;
+                explicit partial_move(uint8_t); // Bar move
+                partial_move(uint8_t , uint8_t); // Normal move
+                partial_move& operator=(const partial_move&);
 
                 partial_move(const partial_move&); // Copy constructor
 
-                const uint8_t start {}, end {}; // Start and ending positions for moves
+                uint8_t start {}, end {}; // Start and ending positions for moves
 
-                enum MoveType { NormalMove = false, BarMove = true };
+                enum MoveType { NormalMove = 0, BarMove = 1 };
 
-                MoveType get_move_type() const;
+                [[nodiscard]] MoveType get_move_type() const;
                 friend std::ostream& operator<<(std::ostream&, const partial_move&);
                 friend std::istream& operator>>(std::istream&, partial_move&);
                 void fancy_print();
@@ -62,24 +69,27 @@ namespace board {
             void fancy_print();
         };
 
-        bool is_valid_move(const complete_move&) const;
-        bool is_valid_move(const complete_move::partial_move&) const;
+        [[nodiscard]] bool is_valid_move(const complete_move&) const;
+        [[nodiscard]] bool is_valid_move(const complete_move::partial_move&) const;
         void make_complete_move(const complete_move&);
         void make_partial_move(const complete_move::partial_move&);
 
         friend std::ostream& operator<<(std::ostream&, const board&);
         friend std::istream& operator>>(std::istream&, board&);
         void fancy_print();
-        
+
         using partial_move = complete_move::partial_move;
     }; // End of struct board
 
 
     using MoveType = board::partial_move::MoveType;
 
-    board::partial_move::partial_move(uint8_t p) : start {UINT8_MAX}, end {p} {} // Bar move initializer
+    board::partial_move::partial_move(uint8_t point_number) : 
+        start {UINT8_MAX}, end {point_number} {} // Bar move initializer
     board::partial_move::partial_move(uint8_t p_start, uint8_t p_end) : start {p_start}, end {p_end} {} // Normal move initializer
-    board::partial_move::partial_move(const partial_move& move) : start {move.start}, end {move.end} {}
+    board::partial_move::partial_move(const partial_move& move) = default; //  : start {move.start}, end {move.end} {}
+    // (const board::partial_move::partial_move& move) {}
+    board::partial_move& board::partial_move::operator=(const board::partial_move& move) = default;
 
     MoveType board::partial_move::get_move_type() const { // Based off of `start` member variable
         return (start == UINT8_MAX) ? MoveType::BarMove : MoveType::NormalMove;
@@ -94,7 +104,9 @@ namespace board {
             }
         };
 
-        if (move.get_move_type() == MoveType::BarMove) return has_one_or_less_of_opposite_turn(move.end);
+        if (move.get_move_type() == MoveType::BarMove) {
+            return has_one_or_less_of_opposite_turn(move.end);
+        }
 
         return (
                 has_one_or_less_of_opposite_turn(move.end) &&
@@ -106,7 +118,7 @@ namespace board {
         return std::all_of(
                 move.complete_move_composition.begin(),
                 move.complete_move_composition.end(),
-                [this] (const complete_move::partial_move& m) -> bool { return is_valid_move(m); }
+                [this] (const complete_move::partial_move& p_move) -> bool { return is_valid_move(p_move); }
             );
     }
 
@@ -126,8 +138,10 @@ namespace board {
     }
 
     void board::make_complete_move(const complete_move& move) {
-        if (is_valid_move(move) == false) throw invalid_move {};
+        if (!is_valid_move(move)) { throw invalid_move {}; };
 
-        for (const auto& partial_move : move.complete_move_composition) make_partial_move(partial_move);
+        for (const auto& partial_move : move.complete_move_composition) {
+            make_partial_move(partial_move);
+        }
     }
 } // End of namespace board
