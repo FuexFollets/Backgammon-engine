@@ -23,6 +23,33 @@ namespace board {
         return output_stream;
     }
 
+    std::ostream& operator<<(
+            std::ostream& output_stream,
+            const board::complete_move::partial_move& partial_move) {
+
+        if (partial_move.get_move_type() == MoveType::BarMove)
+            output_stream << UINT8_MAX << ' ' << partial_move.end;
+        else output_stream << partial_move.start << ' ' << partial_move.end;
+
+        return output_stream;
+    }
+
+    std::ostream& operator<<(std::ostream& output_stream, const board::complete_move& complete_move) {
+        const std::size_t move_composition_count {complete_move.complete_move_composition.size()};
+
+        output_stream
+            << move_composition_count << ' ';
+
+        std::copy(
+                complete_move.complete_move_composition.begin(),
+                complete_move.complete_move_composition.end(),
+                std::ostream_iterator<board::complete_move::partial_move>(output_stream, " ")
+        );
+
+        return output_stream;
+    }
+
+
     std::istream& operator>>(std::istream& input_stream, board& input_board) {
         std::copy_n(
                 std::istream_iterator<int>(std::cin),
@@ -74,3 +101,4 @@ namespace board {
         std::cout << '\n';
     }
 }
+
